@@ -1,0 +1,38 @@
+---
+
+ocspd_dependencies_list:
+  - nginx
+  - firewalld
+  - rng-tools
+
+
+nginx_certs_directory_path: /etc/nginx/ssl
+ocspd_cert_key_size: 4096
+ocspd_cert_key_type: RSA
+ocspd_cert_C: FR
+ocspd_cert_O: org
+ocspd_cert_OU: ou
+ocspd_cert_CN: cn
+ocspd_hashing_algo: "sha256"
+
+ocspd_generate_default_cert: true
+ocspd_csr: "" #path to the web server certificate csr
+ocspd_pem: "" #path to the web server certificate pem
+ocspd_key: "" #path to the key
+ocspd_chain_pem: "" #path to the certificate's trust chain
+
+
+ocspd_licence_dest_path: /opt/ocspd/etc/ocspd.lic
+
+path_to_template_default_ocspd: etc_default.j2
+path_to_default_ocspd: /etc/default/ocspd
+
+jvm_min_memory: 1024m
+jvm_max_memory: 2048m
+jvm_type: server
+
+play_http_port: 9000
+play_http_addresse: 127.0.0.1
+play_config_file: /opt/ocspd/etc/ocspd.conf
+play_logger_file: /opt/ocspd/etc/ocspd-logback.xml
+play_pid_file: /opt/ocspd/var/run/ocspd.pid

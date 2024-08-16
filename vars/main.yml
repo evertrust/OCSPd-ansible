@@ -1,0 +1,15 @@
+---
+
+ocspd_custom_certs:
+  key:
+    src: "{{ ocspd_key }}"
+    dest: "{{ [ nginx_certs_directory_path, 'ocspd.key' ] | join('/') }}"
+  pem:
+    src: "{{ ocspd_pem }}"
+    dest: "{{ [ nginx_certs_directory_path, 'ocspd.pem' ] | join('/') }}"
+  csr:
+    src: "{{ ocspd_csr }}"
+    dest: "{{ [ nginx_certs_directory_path, 'ocspd.csr' ] | join('/') }}"
+  chain_pem:
+    src: "{{ ocspd_chain_pem }}"
+    dest: "{{ [ nginx_certs_directory_path, 'ocspd-chain.pem' ] | join('/') }}"

@@ -1,0 +1,33 @@
+---
+- name: test package
+  ansible.builtin.package:
+    name: nginx
+    state: present
+
+- name: RH8_install - Install prerequisites packages
+  ansible.builtin.yum:
+    name: "nginx"
+    state: present
+    use_backend: dnf4
+    update_cache: true
+
+- name: RH8_install - Check SELinux status
+  command: getenforce
+  register: selinux_status
+
+- name: RH8_install - Set SELinux to permissive mode if it is enforcing
+  command: setenforce 0
+  when: selinux_status['stdout'] == "Enforcing"
+
+- name: RH8_install - Temporary directory creation
+  ansible.builtin.tempfile:
+    state: directory
+    prefix: ocspd_
+  register: ocspd_temp_install_directory
+
+- name: RH8_install - Install ocspd's rpm
+  ansible.builtin.yum:
+    name: "{{ ocspd_pkg_uri }}"
+    state: present
+    disable_gpg_check: yes
+  become: yes

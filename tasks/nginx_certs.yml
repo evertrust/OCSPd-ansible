@@ -1,0 +1,75 @@
+---
+
+##If no certificate has been set up in variables
+- name: Nginx_certs - Ensure SSL directory exists
+  ansible.builtin.file:
+    path: "{{ nginx_certs_directory_path }}"
+    state: directory
+    mode: '0755'
+
+- fail:
+    msg: "You should set all of the ocspd_csr etc... "
+  when: ocspd_generate_default_cert == false and (ocspd_csr == "" or ocspd_pem == "" or ocspd_key == "")
+
+- name: Nginx_certs - Generate OpenSSL key - default
+  ansible.builtin.command:
+    cmd: "openssl genpkey -algorithm {{ ocspd_cert_key_type }} -out {{ [nginx_certs_directory_path, 'ocspd.key'] | join('/') }} -pkeyopt rsa_keygen_bits:{{ ocspd_cert_key_size }}"
+    creates: "{{ [nginx_certs_directory_path, 'ocspd.key'] | join('/') }}"
+  when: ocspd_generate_default_cert == true
+  notify: "OCSPD - Handlers - Restart nginx services"
+  register: generate_key
+
+- name: Nginx_certs - Generate OpenSSL CSR - default
+  ansible.builtin.command:
+    cmd: >
+      openssl req -new -key {{ [nginx_certs_directory_path, 'ocspd.key'] | join('/') }} -out {{ [nginx_certs_directory_path, 'ocspd.csr'] | join('/') }}
+      -subj "/C={{ ocspd_cert_C }}/O={{ ocspd_cert_O }}/OU={{ ocspd_cert_OU }}/CN={{ ocspd_cert_CN }}"
+    creates: "{{ [nginx_certs_directory_path, 'ocspd.csr'] | join('/') }}"
+  when: ocspd_generate_default_cert == true
+  notify: "OCSPD - Handlers - Restart nginx services"
+  register: generate_csr
+
+- name: Nginx_certs - Self-sign the certificate - default
+  ansible.builtin.command:
+    cmd: >
+      openssl x509 -req -days 365 -in {{ [nginx_certs_directory_path, 'ocspd.csr'] | join('/') }}
+      -signkey {{ [nginx_certs_directory_path, 'ocspd.key'] | join('/') }} -out {{ [nginx_certs_directory_path, 'ocspd.pem'] | join('/') }}
+      -set_serial 01 -days 365 -sha256
+    creates: "{{ [nginx_certs_directory_path, 'ocspd.pem'] | join('/') }}"
+  when: ocspd_generate_default_cert == true
+  notify: "OCSPD - Handlers - Restart nginx services"
+  register: sign_certificate
+
+- name: Nginx_certs - Create the certificate chain file - default
+  ansible.builtin.copy:
+    src: "{{ [nginx_certs_directory_path, 'ocspd.pem'] | join('/') }}"
+    dest: "{{ [nginx_certs_directory_path, 'ocspd-chain.pem'] | join('/') }}"
+    force: yes
+    remote_src: yes
+  register: chain_pem_created
+  notify: "OCSPD - Handlers - Restart nginx services"
+  when: ocspd_generate_default_cert == true
+
+- name: Nginx_certs - Create certificate files with provided content
+  ansible.builtin.copy:
+    content: "{{ item.value.src }}"
+    dest: "{{ item.value.dest }}"
+  loop: "{{ ocspd_custom_certs.items() }}"
+  loop_control:
+    loop_var: item
+  notify: "OCSPD - Handlers - Restart nginx services"
+  when: ocspd_generate_default_cert == false
+
+- name: Nginx_certs - Set permissions and ownership of these files
+  ansible.builtin.file:
+    path: "{{ item[1].dest }}"
+    owner: root
+    group: nginx
+    mode: '0640'
+  loop: "{{ ocspd_custom_certs.items() }}"
+  loop_control:
+    loop_var: item
+  notify: "OCSPD - Handlers - Restart nginx services"
+
+- name: Nginx_certs - Flush handlers
+  ansible.builtin.meta: flush_handlers

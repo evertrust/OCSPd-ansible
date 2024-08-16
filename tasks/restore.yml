@@ -1,0 +1,22 @@
+---
+
+- name: Restore - Check restore file exists
+  ansible.builtin.stat:
+    path: "{{ ocspd_backupfile_path }}"
+  register: backupfile_stat
+
+- name: Restore - Debug
+  ansible.builtin.debug:
+    msg: "backupfile_stat: {{ backupfile_stat }}"
+
+- name: Restore - Fail if backup file not found
+  ansible.builtin.fail:
+    msg: "Backup file not found at {{ ocspd_backupfile_path }}"
+  when: not backupfile_stat.stat.exists
+
+- name: Restore - Make the api call
+  ansible.builtin.command:
+    cmd: curl -X POST -H "Content-Type:multipart/form-data" -H "X-API-ID:administrator" -H "X-API-KEY:ocspd" -F "backup=@{{ ocspd_backupfile_path }}" --url http://127.0.0.1:9000/api/v1/system/restore
+
+
+
