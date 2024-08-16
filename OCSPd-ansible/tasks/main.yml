@@ -1,0 +1,12 @@
+---
+- name: Installation for RedHat 8
+  include_tasks: RH8_install.yml
+
+- name: Generate and/or config the Nginx certs
+  include_tasks: nginx_certs.yml
+
+- name: Edit config files
+  include_tasks: config.yml
+
+- name: Restores the backup from file
+  include_tasks: restore.yml

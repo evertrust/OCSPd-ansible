@@ -1,0 +1,33 @@
+---
+# handlers file for OCSP
+
+- name: OCSPD - Handlers - Restart & enable rngd service
+  ansible.builtin.systemd:
+    name: rngd
+    state: restarted
+    enabled: yes
+  listen: OCSPD - Handlers - Restart & enable rngd service
+
+- name: OCSPD - Handlers - Nginx - Test Config
+  ansible.builtin.command: nginx -t
+  changed_when: false
+  listen: OCSPD - Handlers - Restart nginx services
+  become: true
+
+- name: OCSPD - Handlers - Nginx - Reload
+  ansible.builtin.service:
+    name: nginx
+    state: restarted
+    enabled: yes
+  listen: OCSPD - Handlers - Restart nginx services
+  become: true
+
+- name: OCSPD - Handlers - OCSPD - Restart
+  ansible.builtin.service:
+    name: ocspd
+    state: restarted
+    enabled: yes
+  listen: OCSPD - Handlers - OCSPD - Restart
+  become: true
+
+

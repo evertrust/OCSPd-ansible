@@ -1,0 +1,48 @@
+# JVM variables
+JVM_MIN_MEMORY={{ jvm_min_memory }}
+JVM_MAX_MEMORY={{ jvm_max_memory }}
+JVM_TYPE={{ jvm_type }}
+
+# Play variables
+PLAY_HTTP_PORT={{ play_http_port }}
+PLAY_HTTP_ADDRESS={{ play_http_addresse }}
+PLAY_CONFIG_FILE={{ play_config_file }}
+PLAY_LOGGER_FILE={{ play_logger_file }}
+PLAY_PID_FILE={{ play_pid_file }}
+PLAY_HTTP_SECRET_KEY={{ ocspd_play_http_secret_key }}
+
+# OCSPd variables
+OCSPD_ADMINISTRATOR_EMAIL={{ ocspd_administrator_email }}
+OCSPD_RADIUS_HOST={{ ocspd_radius_host }}
+OCSPD_RADIUS_PORT={{ ocspd_radius_port }}
+OCSPD_RADIUS_SECRET={{ ocspd_radius_secret }}
+OCSPD_RADIUS_PROTOCOL={{ ocspd_radius_protocol }}
+OCSPD_LDAP_HOST={{ ocspd_ldap_host }}
+OCSPD_LDAP_PORT={{ ocspd_ldap_port }}
+OCSPD_LDAP_SSL={{ ocspd_ldap_ssl }}
+OCSPD_LDAP_BINDDN={{ ocspd_ldap_binddn }}
+OCSPD_LDAP_BINDPASSWORD={{ ocspd_ldap_bindpassword }}
+OCSPD_LDAP_BASEDN={{ ocspd_ldap_basedn }}
+OCSPD_LDAP_FILTER={{ ocspd_ldap_filter }}
+OCSPD_LDAP_USERATTRIBUTE={{ ocspd_ldap_userattribute }}
+
+# Setting PIDFILE
+PIDFILE=$PLAY_PID_FILE
+
+# Setting JVM JAVA_OPTS
+JAVA_OPTS="$JAVA_OPTS -Xms${JVM_MIN_MEMORY} -Xmx${JVM_MAX_MEMORY} -${JVM_TYPE} -Djava.io.tmpdir=/opt/ocspd/var/tmp"
+
+# Setting Play JAVA_OPTS
+JAVA_OPTS="$JAVA_OPTS -Dhttp.port=${PLAY_HTTP_PORT} -Dhttp.address=${PLAY_HTTP_ADDRESS} -Dconfig.file=${PLAY_CONFIG_FILE} -Dlogger.file=${PLAY_LOGGER_FILE} -Dpidfile.path=${PLAY_PID_FILE} -Dplay.http.secret.key=${PLAY_HTTP_SECRET_KEY} -Dplay.filters.hosts.allowed.0=localhost:9000 -Dplay.filters.hosts.allowed.1=127.0.0.1:9000  -Dplay.filters.hosts.allowed.2=ocspd"
+
+# Setting OCSPd Radius JAVA_OPTS
+if [ -n "$OCSPD_RADIUS_HOST" ]; then
+JAVA_OPTS="$JAVA_OPTS -Docspd.authentication.radius.host=${OCSPD_RADIUS_HOST} -Docspd.authentication.radius.port=${OCSPD_RADIUS_PORT} -Docspd.authentication.radius.shared.secret=${OCSPD_RADIUS_SECRET} -Docspd.authentication.radius.protocol=${OCSPD_RADIUS_PROTOCOL}"
+fi
+
+# Setting the OCSPd LDAP JAVA_OPTS
+if [ -n "$OCSPD_LDAP_HOST" ] && [ -n "$OCSPD_LDAP_BINDDN" ] && [ -n "$OCSPD_LDAP_BINDPASSWORD" ] && [ -n "$OCSPD_LDAP_BASEDN" ] && [ -n "$OCSPD_LDAP_USERATTRIBUTE" ]; then
+JAVA_OPTS="$JAVA_OPTS -Docspd.authentication.ldap.host=${OCSPD_LDAP_HOST} -Docspd.authentication.ldap.port=${OCSPD_LDAP_PORT} -Docspd.authentication.ldap.ssl=${OCSPD_LDAP_SSL}"
+JAVA_OPTS="$JAVA_OPTS -Docspd.authentication.ldap.bind.dn=${OCSPD_LDAP_BINDDN} -Docspd.authentication.ldap.bind.password=${OCSPD_LDAP_BINDPASSWORD} -Docspd.authentication.ldap.base.dn=${OCSPD_LDAP_BASEDN}"
+JAVA_OPTS="$JAVA_OPTS -Docspd.authentication.ldap.filter=${OCSPD_LDAP_FILTER} -Docspd.authentication.ldap.username.attribute=${OCSPD_LDAP_USERATTRIBUTE}"
+fi

@@ -1,0 +1,26 @@
+---
+
+ocspd_pkg_uri: /tmp/ocspd-3.1.3.rpm
+
+ocspd_licence_src_path: ../../../ocspd.lic
+ocspd_backupfile_path: ./ocspd-backup.json
+
+ocspd_play_http_secret_key: zSzezv%SVCRGtSsRSGTtbZSRv5B%dEaqTzV#gBBcG2@QvtSzQggs$5fffZ4gqExdAg%X4Aa!vrD2!BWBcwfCBscEqQA2R$R!ra%aWFQGFBaWbGTbs$t@xeZScWQ%CQ$f
+
+ocspd_administrator_email: administrator@test.com
+ocspd_radius_host: root@localhost
+ocspd_radius_port: 1812
+ocspd_radius_secret: 'azerty'
+ocspd_radius_protocol: PAP
+
+ocspd_ldap_host: ""
+ocspd_ldap_port: ""
+ocspd_ldap_ssl: ""
+ocspd_ldap_binddn: ""
+ocspd_ldap_bindpassword: ''
+ocspd_ldap_basedn: ""
+ocspd_ldap_filter: ""
+ocspd_ldap_userattribute: ""
+
+
+

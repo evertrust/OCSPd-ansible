@@ -1,0 +1,24 @@
+---
+
+- name: Config - Configure rngd options
+  ansible.builtin.copy:
+    dest: /etc/sysconfig/rngd
+    content: |
+      EXTRAOPTIONS="-i -o /dev/random -r /dev/urandom -t 10 -W 2048"
+  notify: "OCSPD - Handlers - Restart & enable rngd service"
+
+- name: Config - Update licence
+  ansible.builtin.copy:
+    src: "{{ ocspd_licence_src_path }}"
+    dest: "{{ ocspd_licence_dest_path }}"
+  notify: OCSPD - Handlers - OCSPD - Restart
+
+- name: Config - File creation /etc/default/ocspd
+  ansible.builtin.template:
+    src: "{{ path_to_template_default_ocspd }}"
+    dest: "{{ path_to_default_ocspd }}"
+  notify: OCSPD - Handlers - OCSPD - Restart
+
+
+
+
